@@ -36,8 +36,8 @@ export const placeOrderService=(data,userId)=>{
             const session= await stripe.checkout.sessions.create({
                 line_items:line_items,
                 mode:"payment",
-                success_url:`${process.env.FONTEND_URL}verify=true&orderId=${newOrder._id}`,
-                cancel_url:`${process.env.FONTEND_URL}verify=false&orderId=${newOrder._id}`
+                success_url:`${process.env.FONTEND_URL}verify?success=true&orderId=${newOrder._id}`,
+                cancel_url:`${process.env.FONTEND_URL}verify?success=false&orderId=${newOrder._id}`
             })
             resolve({
                 EC:0,
@@ -46,6 +46,79 @@ export const placeOrderService=(data,userId)=>{
             })
         } catch (error) {
             console.log(error)
+            reject(error)
+        }
+    })
+}
+export const verifyOrderService=(data)=>{
+    return new Promise(async(resolve, reject) => {
+        const {success,orderId}=data;
+        console.log(success,orderId)
+        try {
+            if(success==="true")
+            {
+                await orderModel.findByIdAndUpdate(orderId,{payment:true})
+                resolve({
+                    EC:0,
+                    EM:'Thanh toán thành công'
+                })
+            }
+            else 
+            {
+               await orderModel.findByIdAndDelete(orderId)
+                resolve({
+                    EC:-1,
+                    EM:'Thanh toán thất bại'
+                }) 
+            }
+        } catch (error) {
+            console.log(error)
+            reject(error)
+        }
+    })
+}
+export const getListOrderService=(userId)=>{
+    return new Promise(async(resolve, reject) => {
+        try {
+            const orders=await orderModel.find({userId:userId});
+            resolve({
+                EC:0,
+                EM:"Lấy danh sách đơn hàng thành công",
+                DT:orders
+            })
+        } catch (error) {
+            console.log(error)
+            reject(error)
+        }
+    })
+}
+
+export const getAllOrderService=()=>{
+    return new Promise(async(resolve, reject) => {
+        try {
+            const listOrder=await orderModel.find({})
+            resolve({
+                EC:0,
+                EM:"Lấy danh sách đơn hàng thành công!",
+                DT:listOrder
+            })
+        } catch (error) {
+            console.log(error)
+            reject(error)
+        }
+    })
+}
+export const updateOrderStatusService=(data)=>{
+    return new Promise(async(resolve, reject) => {
+        try {
+            const {orderId,status}=data;
+            await orderModel.findByIdAndUpdate(orderId,{status:status})
+            resolve({
+                EC:0,
+                EM:"Cập nhật đơn hàng thành công!"
+            })
+        } catch (error) {
+             console.log(error)
             reject(error)
         }
     })

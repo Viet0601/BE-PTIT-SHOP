@@ -4,7 +4,7 @@ import multer from "multer"
 import { LoginController, registerController } from "../controller/userController.js"
 import { authMiddleWare } from "../middleware/authMiddleWare.js"
 import { addToCartController, getAllCartController, removeToCartController } from "../controller/addCartController.js"
-import { placeOrderController } from "../controller/orderController.js"
+import { getAllOrderController, getListOrderController, placeOrderController, updateOrderStatusController, verifyOrderController } from "../controller/orderController.js"
 const router=express.Router()
 const storage= multer.diskStorage({
     destination:'uploads',
@@ -27,6 +27,10 @@ export const initWebRoute=(app)=>{
     router.post('/get-all-cart',authMiddleWare,getAllCartController)
     // order 
     router.post('/place-order',authMiddleWare,placeOrderController)
+    router.post('/verify-order',verifyOrderController)
+    router.post('/get-list-order',authMiddleWare,getListOrderController)
+    router.post('/update-status-order',updateOrderStatusController)
+    router.get('/get-all-order',getAllOrderController)
 
     
     return app.use("/api/v1",router)    
